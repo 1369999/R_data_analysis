@@ -1,0 +1,27 @@
+library(rvest)
+library(stringr)
+library(httr)
+library(XML)
+#########translate
+library(rvest)
+library(stringr)
+url<-"http://www.iciba.com/"
+tt<-as.data.frame(NULL)
+pb <- progress_bar$new(
+  format = "  downloading [:bar] :percent eta: :eta",
+  total =length(summary), clear = FALSE, width= 60)##进度条
+for (i in 1:length(summary)) {
+  content<-summary[i]
+  content<-str_replace_all(content,"=","equal to")
+  content<-str_replace_all(content,"≥","greater than or equal to")
+  content<-str_replace_all(content,"≤","less than or equal to")
+  content<-str_replace_all(content,"<","less than")
+  content<-str_replace_all(content,">","greater than")
+  content<-str_replace_all(content," ","%20")
+  url_search<-paste0(url,"word?w=",content)
+  webpage<-read_html(url_search)
+  translate<-webpage %>% html_nodes(xpath='//div[@class="Mean_trans__37du6"]/p[1]') %>% html_text()
+  tt[i,1]<-translate
+  pb$tick()
+  Sys.sleep(1 / length(summary))
+}
